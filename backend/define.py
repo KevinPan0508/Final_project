@@ -4,6 +4,8 @@ import re
 import time
 from bs4 import BeautifulSoup
 
+most_popular_board = ['gossiping','stock','c_chat','nba','baseball','lifeismoney']
+popular_board = ['car','hatepolitics','koreastar','sex','mobilecomm','boy-girl','lol','e-shopping','marriage','beauty','tech_job','babymother','womentalk','pc_shopping']
 headers = {'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.88 Safari/537.36'}
 cookie = {'over18':'1'}
 
@@ -93,8 +95,8 @@ def get_text(url):
     request.close()
     return bs_class.text
 
-
-def compute_target_time(board):   
+'''
+def compute_target_time(board,minus):   
     now = datetime.datetime.now()
     if(board=='Gossiping'):
         offset = datetime.timedelta(days=1)
@@ -102,12 +104,20 @@ def compute_target_time(board):
         offset = datetime.timedelta(days=7)
     time = now-offset
     return time.strftime('%m/%d')
+'''
+
+def compute_target_time(minus):   
+    now = datetime.datetime.now()
+    offset = datetime.timedelta(days=minus)
+    time = now-offset
+    return time.strftime('%m/%d')
 
     
 
-def get_7_days_text(board):
+def get_text_regular(board,type='text'):
     url = 'https://www.ptt.cc/bbs/' + board + '/index.html'
     all_text = []
+    only_text = []
     temp = get_title_meta_per_page(url)
     d = 5
     while(1):
@@ -117,14 +127,21 @@ def get_7_days_text(board):
         except IndexError:
             d-=1
             continue
-    target_time = compute_target_time(board).lstrip('0')
-    
+    if(board in most_popular_board):
+        target_time = compute_target_time(1).lstrip('0')
+    elif(board in popular_board):
+        target_time = compute_target_time(3).lstrip('0')
+    else:
+        target_time = compute_target_time(7).lstrip('0')
     while(1):
         for i in range(len(all_text),-1,-1):
             try:
                 if(all_text[i]['date'] == target_time):
                     all_text = all_text[:i]
-                    return all_text
+                    if(type=='text+date'):
+                        return all_text
+                    elif(type=='text'):
+                        return only_text
             except IndexError:
                 continue
         for i in range(len(temp)):
@@ -132,9 +149,69 @@ def get_7_days_text(board):
             print(temp[-1]['link'])
             text = get_text(temp.pop()['link']).replace('\n','')
             all_text.append({'date':date,'text':text})
+            only_text.append(text)
         url = get_previous_page_link(url)
         temp = get_title_meta_per_page(url)
 
 
 
-    
+
+
+def get_text_by_day(board,minus,type='text'):
+    url = 'https://www.ptt.cc/bbs/' + board + '/index.html'
+    all_text = []
+    only_text = []
+    temp = get_title_meta_per_page(url)
+    d = 5
+    while(1):
+        try:
+            temp = temp[:-d]
+            break
+        except IndexError:
+            d-=1
+            continue
+    target_time = compute_target_time(minus).lstrip('0')
+    while(1):
+        for i in range(len(all_text),-1,-1):
+            try:
+                if(all_text[i]['date'] == target_time):
+                    all_text = all_text[:i]
+                    if(type=='text+date'):
+                        return all_text
+                    elif(type=='text'):
+                        return only_text
+            except IndexError:
+                continue
+        for i in range(len(temp)):
+            date = temp[-1]['date']
+            print(temp[-1]['link'])
+            text = get_text(temp.pop()['link']).replace('\n','')
+            all_text.append({'date':date,'text':text})
+            only_text.append(text)
+        url = get_previous_page_link(url)
+        temp = get_title_meta_per_page(url)
+
+
+def split_text_by_days(list1):
+    time = []
+    days7,days6,days5,days4,days3,days2,days1 = [],[],[],[],[],[],[]
+    for i in range(0,8):
+        time.append(compute_target_time(i).lstrip('0')) 
+    days7,days6,days5,days4,days3,days2,days1 = time[0:1], time[1:2], time[2:3], time[3:4], time[4:5], time[5:6], time[6:7]
+    days7_text = list(filter(lambda x:x['date'] in days7, list1))
+    days7_text = list(map(lambda x:x['text'], days7_text))    
+    days6_text = list(filter(lambda x:x['date'] in days6, list1))
+    days6_text = list(map(lambda x:x['text'], days6_text))    
+    days5_text = list(filter(lambda x:x['date'] in days5, list1))
+    days5_text = list(map(lambda x:x['text'], days5_text))       
+    days4_text = list(filter(lambda x:x['date'] in days4, list1))
+    days4_text = list(map(lambda x:x['text'], days4_text))    
+    days3_text = list(filter(lambda x:x['date'] in days3, list1))
+    days3_text = list(map(lambda x:x['text'], days3_text))   
+    days2_text = list(filter(lambda x:x['date'] in days2, list1))
+    days2_text = list(map(lambda x:x['text'], days2_text))   
+    days1_text = list(filter(lambda x:x['date'] in days1, list1))
+    days1_text = list(map(lambda x:x['text'], days1_text))   
+    return days7_text,days6_text,days5_text,days4_text,days3_text,days2_text,days1_text
+
+
