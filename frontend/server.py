@@ -8,7 +8,13 @@ from wordcloud import WordCloud
 from datetime import datetime, timedelta
 
 import popular
+import group_color
 
+sample_word_frequencies = {'beautiful': 10, 'explicit':8, 'simple':30, 'sparse':9,
+                'readability':2, 'rules':17, 'practicality':20,
+                'explicitly':22, 'one':3, 'now':29, 'easy':38, 'obvious':46, 'better':35}
+
+COLORS = ["#f94144", "#f3722c", "#f8961e", "#f9c74f", "#90be6d", "#43aa8b", "#577590"]
 
 app = Flask(__name__)
 
@@ -26,8 +32,14 @@ def get_board():
 
 @app.route('/get_images/', methods=['POST'])
 def get_images():
+
+	# 取出前端傳過來的 data
 	board = request.get_json()['board']
+	image_width = request.get_json()['width']
+	image_height = request.get_json()['height']
 	filename = "static/images/" + board + "_" + str(int(round(time.time() * 1000))) + "_"
+
+	# 要傳回給前端的 data
 	return_data = {}
 
 	# 會產生的 image 數量
@@ -48,26 +60,51 @@ def get_images():
 
 	# print(return_data['button_texts'], file=sys.stdout)
 
+	# 在 sample_text_frequencies 中加入看板的文字
+	sample_word_frequencies[board] = 100
+
+	'''
+		!!!!!!! 統計好的 word frequency !!!!!!! 
+	'''
+	word_frequencies = sample_word_frequencies
+
+	grouped_color_func = get_group_color_func(word_frequencies)
+
+	wc = WordCloud(background_color="white", repeat=False, color_func=grouped_color_func, width=image_width, height=image_height)
+
 	# 產生 word cloud 的 image
 	for i in range(return_data['image_num']):
 		return_data['image_names'].append(filename+str(i)+".png")
-		generate_wordcloud(return_data['image_names'][i], board)
-		print("generate image " + str(i) + "/" + str(return_data['image_num']), file=sys.stdout)
+		generate_wordcloud(wc, return_data['image_names'][i], word_frequencies)
 
 	return jsonify(return_data)
 
-def generate_wordcloud(filename, text):
-	x, y = np.ogrid[:300, :300]
+def generate_wordcloud(wc, filename, text_frequencies):
+	# x, y = np.ogrid[:300, :300]
 
-	mask = (x - 150) ** 2 + (y - 150) ** 2 > 130 ** 2
-	mask = 255 * mask.astype(int)
+	# mask = (x - 150) ** 2 + (y - 150) ** 2 > 130 ** 2
+	# mask = 255 * mask.astype(int)
+	wc.generate_from_frequencies(text_frequencies).to_file(filename)
 
-	wc = WordCloud(background_color="white", repeat=True, color_func=my_color_func)
-	wc.generate(text).to_file(filename)
+def get_group_color_func(text_frequencies):
 
-COLORS = ["249, 65, 68", "243, 114, 44", "248, 150, 30", "249, 132, 74", "249, 199, 79", "144, 190, 109", "67, 170, 139", "77, 144, 142", "87, 117, 144", "39, 125, 161"]
-def my_color_func(word, font_size, position, orientation, random_state=None,
-                    **kwargs):
+	# 把 word 按出現次數由大到小排好
+	texts = sorted(list(text_frequencies.keys()), key = lambda k: sample_text_frequencies[k], reverse=True)
 	
-    return "rgb(%s)" % COLORS[random.randint(0, len(COLORS)-1)]
+	# 計算每一個顏色要 assign 給幾個 word
+	text_num_per_color = len(texts)/len(COLORS)
+
+	# 記錄每一個顏色對應的 words
+	color_to_words = {}
+	for i in range(0, len(COLORS)):
+		color_to_words[COLORS[i]] = texts[int(i*text_num_per_color):int((i+1)*text_num_per_color)]
+
+	# 給定 default color
+	default_color = COLORS[-1]
+
+	return group_color.SimpleGroupedColorFunc(color_to_words, default_color)
+
+
+	
+
 
