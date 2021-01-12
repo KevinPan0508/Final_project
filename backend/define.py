@@ -4,6 +4,7 @@ import re
 import time
 from bs4 import BeautifulSoup
 
+normal_board = []
 most_popular_board = ['gossiping','stock','c_chat','nba','baseball','lifeismoney']
 popular_board = ['car','hatepolitics','koreastar','sex','mobilecomm','boy-girl','lol','e-shopping','marriage','beauty','tech_job','babymother','womentalk','pc_shopping']
 headers = {'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.88 Safari/537.36'}
@@ -37,7 +38,10 @@ def get_popular_board():
         except TypeError:
             continue 
         board = raw_board.text
-        result.append({'board':board,'link':link})
+        if(len(result)<=20):
+            result.append({'board':board,'link':link})
+        else:
+            break
     request.close()
     #result 為 dictionary array, eg. result[0]['board'] or result[5]['link']
     return result
@@ -114,7 +118,7 @@ def compute_target_time(minus):
 
     
 
-def get_text_regular(board,type='text'):
+def get_text_7days(board,type='text'):
     url = 'https://www.ptt.cc/bbs/' + board + '/index.html'
     all_text = []
     only_text = []
@@ -127,11 +131,6 @@ def get_text_regular(board,type='text'):
         except IndexError:
             d-=1
             continue
-    if(board in most_popular_board):
-        target_time = compute_target_time(1).lstrip('0')
-    elif(board in popular_board):
-        target_time = compute_target_time(3).lstrip('0')
-    else:
         target_time = compute_target_time(7).lstrip('0')
     while(1):
         for i in range(len(all_text),-1,-1):
@@ -153,6 +152,24 @@ def get_text_regular(board,type='text'):
         url = get_previous_page_link(url)
         temp = get_title_meta_per_page(url)
 
+
+def get_text_by_number(board,type='text'):
+    url = 'https://www.ptt.cc/bbs/' + board + '/index.html'
+    all_text = []
+    only_text = []
+    temp = get_title_meta_per_page(url)
+    while(1):
+        for i in range(len(temp)):
+            print(temp[-1]['link'])
+            text = get_text(temp.pop()['link']).replace('\n','')
+            if(len(only_text)<=280):
+                only_text.append(text)
+            else:
+                break
+        if(len(only_text)>=280):
+            break    
+        url = get_previous_page_link(url)
+        temp = get_title_meta_per_page(url)
 
 
 
@@ -214,4 +231,5 @@ def split_text_by_days(list1):
     days1_text = list(map(lambda x:x['text'], days1_text))   
     return days7_text,days6_text,days5_text,days4_text,days3_text,days2_text,days1_text
 
-
+text_list = get_text_by_number('gossiping')
+board_list = get_popular_board()

@@ -8,7 +8,7 @@ from wordcloud import WordCloud
 import matplotlib.pyplot as plt
 import json
 
-font =  'SourceHanSansTW-Regular.otf'
+font =  './backend/SourceHanSansTW-Regular.otf'
 COLORS = ["249, 65, 68", "243, 114, 44", "248, 150, 30", "249, 132, 74", "249, 199, 79", "144, 190, 109", "67, 170, 139", "77, 144, 142", "87, 117, 144", "39, 125, 161"]
 
 def getFrequencyDictForText(list):
