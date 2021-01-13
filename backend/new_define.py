@@ -104,7 +104,7 @@ def get_text_7days(board,type='text'):
         except IndexError:
             d-=1
             continue
-        target_time = compute_target_time(7).lstrip('0')
+    target_time = compute_target_time(7).lstrip('0')
     while(1):
         for i in range(len(all_text),-1,-1):
             try:
