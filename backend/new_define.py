@@ -3,8 +3,11 @@ import requests as r
 import re
 import time
 from bs4 import BeautifulSoup
+from fake_useragent import UserAgent
 
-headers = {'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.88 Safari/537.36'}
+ua = UserAgent()
+#headers = {'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.88 Safari/537.36'}
+headers = {'user-agent' : ua.random}
 cookie = {'over18':'1'}
 
 session = r.Session()
@@ -14,6 +17,7 @@ def modified_requests(url):
     while(attempts > 0):
         try:
             request = session.get(url,headers=headers,cookies=cookie)
+            time.sleep(.300)
         except r.HTTPError:
             attempts -= 1
             print('retry')
@@ -72,7 +76,7 @@ def get_previous_page_link(current_page_url):
         request = modified_requests(current_page_url)
         html = request.text
         bs_class = BeautifulSoup(html,'html.parser')
-        previous_page_link = 'http://ptt.cc' + bs_class.find_all('a',class_='btn wide')[1]['href']
+        previous_page_link = 'https://ptt.cc' + bs_class.find_all('a',class_='btn wide')[1]['href']
     return previous_page_link
 
 def get_text(url):
@@ -195,7 +199,6 @@ def split_text_by_days(list1):
     days1_text = list(filter(lambda x:x['date'] in days1, list1))
     days1_text = list(map(lambda x:x['text'], days1_text))   
     return days7_text,days6_text,days5_text,days4_text,days3_text,days2_text,days1_text
-
 
 
 
