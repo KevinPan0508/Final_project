@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-giJF6kkoqNQ00vy+HMDP7azOuL0xtbfIcaT9wjKHr8RbDVddVHyTfAAsrekwKmP1" crossorigin="anonymous">
+	<script src="https://code.jquery.com/jquery-3.5.1.min.js" integrity="sha256-9/aliU8dGd2tb6OSsuzixeV4y/faTqgFtohetphbbj0=" crossorigin="anonymous"></script>
+	<title>PTT風向球</title>
+	<link rel="stylesheet" href="">
+	<style>
+		body{
+			margin: 0;
+			background: #98c1d9;
+			background: linear-gradient(180deg, #e0fbfc 0%, #98c1d9 100%);
+			background-attachment: fixed;
+    		background-repeat: no-repeat;
+			height: 100vh;
+			position:relative;
+			color: #293241;
+		}
+		h1{
+			margin-top: 1em;
+			text-align: center;
+		}
+
+		.timeline {
+			position: relative;
+		}
+		
+		@media (min-width: 992px) {
+			.hori-timeline .events {
+		    	border-top: 3px solid #98c1d9;
+			}
+			.events::after {
+				width: 0;
+				height: 0;
+				border-style: solid;
+				border-width: 10px 0 10px 13px;
+				border-color: transparent transparent transparent #98c1d9;
+				content:' ';
+				top: 7px;
+				right: 0px;
+				position: absolute;
+			}
+		}
+		@media (max-width: 992px) {
+			.hori-timeline .events {
+		    	border-left: 3px solid #98c1d9;
+			}
+			.events::after {
+				width: 0;
+				height: 0;
+				border-style: solid;
+				border-width: 15px 8px 0 8px;
+				border-color: #98c1d9 transparent transparent transparent;
+				content:' ';
+				left: 6px;
+				position: absolute;
+			}
+			.hori-timeline .events .event-list:last-child {
+				padding-bottom: 3em;
+			}
+		}
+		.hori-timeline .events .event-list {
+		    display: block;
+		    position: relative;
+		    text-align: center;
+		    left: -1em;
+		    padding: 1.5em 0px;
+		    margin-right: 0;
+		}
+
+		.hori-timeline .events .event-list .event-date {
+		    position: absolute;
+		    width: 4em;
+		    border-radius: 4px;
+		    padding: 2px 4px;
+		}
+		.hori-timeline .events .event-list .event-date {
+	        top: 0.5em;
+	        margin: 0 auto;
+	    }
+
+		@media (min-width: 992px) {
+			.hori-timeline {
+				margin-top: 1em;
+			}
+			.events {
+				margin: 0;
+			}
+		    .hori-timeline .events .event-list {
+		        display: inline-block;
+		        padding: 0px;
+		        width: 12%;
+		        padding-top: 45px;
+		    }
+		    .hori-timeline .events .event-list .event-date {
+		        top: -1em;
+		        margin: 0 auto;
+		    }
+		}
+		@media (min-width: 768px) and (max-width: 992px) {
+			.hori-timeline {
+				vertical-align:middle;
+			}
+		    .hori-timeline .events .event-list .event-date {
+		        left: 0em;
+		        margin: 0 auto;
+		    }
+		}
+		@media (min-width: 576px) and (max-width: 768px) {
+		    .hori-timeline .events .event-list .event-date {
+		        left: -0.3em;
+		        margin: 0 auto;
+		    }
+		}
+		@media (max-width: 576px) {
+		    .hori-timeline .events .event-list .event-date {
+		    	left: -0.3em;
+		        margin: 0 auto;
+		    }
+		}
+
+		.bg-soft-primary {
+		    background-color: rgba(64,144,203,.3)!important;
+		}
+		.bg-soft-success {
+		    background-color: rgba(71,189,154,.3)!important;
+		}
+		.bg-soft-danger {
+		    background-color: rgba(231,76,94,.3)!important;
+		}
+		.bg-soft-warning {
+		    background-color: rgba(249,213,112,.3)!important;
+		}
+
+		#content{
+			background-color: white;
+			border-radius: 5px;
+			padding: 1em;
+			margin-top: 1em;
+			opacity: 0;
+		}
+
+		.btn-primary, .btn-outline-primary{
+		    background-color: white !important;
+		    border-color: #3d5a80 !important;
+		    color: #3d5a80 !important;
+		}
+
+		.btn-primary:hover, .btn-outline-primary:hover{
+			background-color: #3d5a80 !important;
+			color: white !important;
+		}
+
+		.btn-primary:active, .btn-outline-primary:active{
+			border-color: #3d5a80 !important;
+		}
+
+		.btn-primary:visited, .btn-outline-primary:visited{
+			border-color: #3d5a80 !important;
+		}
+		.displayImage, .displayImage:hover{
+			background-color: #ee6c4d !important;
+			border-color: #ee6c4d !important;
+			color: white !important;
+		}
+
+		#wordcloud{
+			width: 100%;
+		 	vertical-align: middle;
+		}
+
+		.image-wrap {
+			display: inline-block;
+			vertical-align: middle;
+		}
+
+		.helper {
+		    display: inline-block;
+		    height: 100%;
+		    vertical-align: middle;
+		}
+
+		#board_label{
+			display: inline-block;
+			width: 100%;
+			text-align: center;
+		}
+
+
+	</style>
+</head>
+<body>
+	<div class="container">
+		<div class="row">
+			<h1 class="mb-12 mt-3">PTT風向球</h1>
+		</div>
+		<div class="row justify-content-center">
+			<form action="index_submit" method="get" accept-charset="utf-8">
+		    <div class="col-5 mx-auto">
+		    	<label id="board_label" for="board">要看哪個版咧 ∠( ᐛ 」∠)_</label>
+		    	<div class="input-group">
+		    		<select id="board" class="form-select" aria-label="board" disabled="true">
+					</select>
+					<button id="submit" class="btn btn-outline-primary disabled" type="button">送出</button>
+		    	</div>
+		    </div>
+		    </form>
+		</div>
+		<div id="content" class="row mb-5 align-items-center">
+			<div id="spinner" class="d-flex d-none justify-content-center my-5">
+			  <div class="spinner-border "role="status" ></div>
+			</div>
+		    <div class="timeline col-lg-12 col-2 d-none">
+                <div class="hori-timeline">
+                    <ul class="list-inline events">
+                        <li class="list-inline-item event-list">
+                            <button type="button" class="btn event-date btn-primary" onclick="changeImage(6)"></button>
+                        </li>
+                        <li class="list-inline-item event-list">
+                            <button type="button" class="btn event-date btn-primary" onclick="changeImage(5)"></button>
+                        </li>
+                        <li class="list-inline-item event-list">
+							<button type="button" class="btn event-date btn-primary" onclick="changeImage(4)"></button>
+                        </li>
+                        <li class="list-inline-item event-list">
+                            <button type="button" class="btn event-date btn-primary" onclick="changeImage(3)"></button>
+                        </li>
+                        <li class="list-inline-item event-list">
+                            <button type="button" class="btn event-date btn-primary" onclick="changeImage(2)"></button>
+                        </li>
+                        <li class="list-inline-item event-list">
+                            <button type="button" class="btn event-date btn-primary" onclick="changeImage(1)"></button>
+                        </li>
+                        <li class="list-inline-item event-list">
+                            <button type="button" class="btn event-date btn-primary displayImage" onclick="changeImage(0)"></button>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+	        <div class="image-wrap col-lg-12 col-10 d-none">
+	        	<span class="helper"></span><img id="wordcloud" src="" alt="">
+	        </div>
+		</div>
+		<div class="row mb-5"></div>
+	</div>
+</body>
+<script type="text/javascript">
+
+	var image_names = []
+
+	// 取得熱門看板
+	$.ajax({
+		type: 'POST',
+		url:"/get_board",
+		contentType: 'application/json; charset=UTF-8',
+		success:function(data){
+			const boards = JSON.parse(data);
+			$.each(boards, function(index, value) {
+			    $("#board").append('<option value="'+value+'">'+value+'</option>')
+			}); 
+			$("#board").attr('disabled',false)
+			$("#submit").removeClass('disabled');
+		}
+	});
+
+	// 傳送要抓的看板
+	$("#submit").click(function(event) {
+
+		// 顯示 spinner
+		$("#content").animate({opacity:'0'}, function(){
+			$("#spinner").removeClass('d-none');
+			$(".timeline").addClass('d-none');
+			$(".image-wrap").addClass('d-none');
+			$("#content").animate({opacity:'1'}, function(){
+				$("#content").animate({opacity:'1'});
+
+				// 處理要傳到後端的 data
+				var data = {};
+				data["board"] = $("#board").val();
+
+				var w = window.innerWidth
+				if(w < 768) {
+					data["width"] = w;
+					data["height"] = w;
+				}
+				else {
+					data["width"] = w;
+					data["height"] = parseInt(w * 0.6);
+				}
+
+				// 使用 ajax 傳送 data
+				$.ajax({
+					type: 'POST',
+					url:"{{url_for('get_images')}}",
+					dataType : 'json',
+					data: JSON.stringify(data),
+					contentType: 'application/json; charset=UTF-8',
+					success:function(data){
+						// data["image_names"]: image 的 file names
+						// data["image_num"]: image 數量
+						// data["button_texts"]: button 要顯示的文字
+
+						// 取的 image 的 file names
+						image_names = data["image_names"];
+
+						// 更新 button 的文字 
+						$(".event-date").each(function( index ) {
+							$( this ).text(data['button_texts'][8-index-1]);
+							if( index >= 8 - data['image_num'] ){
+								$( this ).removeClass('disabled');
+							}
+							else{
+								$( this ).addClass('disabled');
+							}
+						});
+
+						$(".event-date").removeClass("displayImage");
+						$(".event-list:last-child .event-date").addClass("displayImage");
+
+						// 顯示 image 及 timeline
+						$("#content").animate({opacity:'0'}, function(){
+							$("#wordcloud").attr('src', image_names[0]);
+							$("#spinner").addClass('d-none');
+							$(".timeline").removeClass('d-none');
+							$(".image-wrap").removeClass('d-none');
+							$("#content").animate({opacity:'1'});
+						});
+					}, 
+					error: function(xhr, ajaxOptions, thrownError){
+				        console.log(xhr.status);
+				        console.log(thrownError);
+				    }
+
+				});
+			});
+			
+		});
+
+	});
+	$(".event-date").click(function(){
+		$(".event-date").removeClass("displayImage");
+		$( this ).addClass("displayImage");
+	});
+
+	function changeImage(id){
+		$("#wordcloud").fadeOut('fast', function(){
+			$("#wordcloud").attr('src', image_names[id]).fadeIn('fast');
+		});
+	}
+</script>
+</html>
