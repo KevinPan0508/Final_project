@@ -7,11 +7,11 @@ import re
 import cloud as wordc
 
 def multi_get_first_page_url(board):
-    current_page_url = "http://www.ptt.cc/bbs/" + board + "/index.html"
+    current_page_url = "http://ptt.cc/bbs/" + board + "/index.html"
     request = nd.modified_requests(current_page_url)
     html = request.text
     bs_class = BeautifulSoup(html,'html.parser')
-    previous_page_link = 'http://www.ptt.cc' + bs_class.find_all('a',class_='btn wide')[1]['href']
+    previous_page_link = 'http://ptt.cc' + bs_class.find_all('a',class_='btn wide')[1]['href']
     return previous_page_link
 
 def multi_get_seg(board):
@@ -45,10 +45,11 @@ def multi_get_text(start_url,stop_url):
 def multi_start(board):
     ret = []
     #分割長度
-    length = 10
+    length = 20
     my_queue = queue.Queue()
     threads = []
     start,first,second,third,fourth,fifth,sixth,seventh = multi_get_seg('board')
+    threads.append(threading.Thread(target=lambda q, arg1, arg2: q.put(multi_get_text(arg1,arg2)), args=(my_queue,start,first)))
     threads.append(threading.Thread(target=lambda q, arg1, arg2: q.put(multi_get_text(arg1,arg2)), args=(my_queue,start,first)))
     threads.append(threading.Thread(target=lambda q, arg1, arg2: q.put(multi_get_text(arg1,arg2)), args=(my_queue,first,second)))
     threads.append(threading.Thread(target=lambda q, arg1, arg2: q.put(multi_get_text(arg1,arg2)), args=(my_queue,second,third)))
