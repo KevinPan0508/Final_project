@@ -38,7 +38,7 @@ def multi_get_text(start_url,stop_url):
             text_list.append(text)
         url_digit = pattern.findall(start_url)
         start_url = start_url.replace(url_digit[0],str(int(url_digit[0])-1))
-    text_list = ckip.cut(text_list)
+    text_list = ckip.ckip_cut(text_list)
     return text_list
 
 def multi_start(board):
