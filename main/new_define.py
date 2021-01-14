@@ -17,7 +17,7 @@ def modified_requests(url):
     while(attempts > 0):
         try:
             request = session.get(url,headers=headers,cookies=cookie)
-            time.sleep(.300)
+            time.sleep(.150)
         except r.HTTPError:
             attempts -= 1
             print('retry')
@@ -40,7 +40,7 @@ def get_popular_board():
             continue 
         board = raw_board.text
         if(len(result)<=20):
-            result.append({'board':board,'link':link})
+            result.append(board)
         else:
             break
     #result 為 dictionary array, eg. result[0]['board'] or result[5]['link']
@@ -134,14 +134,17 @@ def get_text_by_number(board,type='text'):
         for i in range(len(temp)):
             print(temp[-1]['link'])
             text = get_text(temp.pop()['link']).replace('\n','')
-            if(len(only_text)<=280):
+            if(len(only_text)<=70):
                 only_text.append(text)
             else:
+                return only_text
                 break
-        if(len(only_text)>=280):
+        if(len(only_text)>=70):
+            return only_text
             break    
         url = get_previous_page_link(url)
         temp = get_title_meta_per_page(url)
+   
 
 def get_text_by_day(board,minus,type='text'):
     url = 'https://www.ptt.cc/bbs/' + board + '/index.html'
@@ -177,6 +180,19 @@ def get_text_by_day(board,minus,type='text'):
         url = get_previous_page_link(url)
         temp = get_title_meta_per_page(url)
 
+def split_text_by_numbers(list1):
+    text1,text2,text3,text4,text5,text6,text7 = [],[],[],[],[],[],[]
+    
+    length = len(list1)
+    seg = length//7
+    text1 = list1[0:seg]
+    text2 = list1[seg:seg*2]
+    text3 = list1[seg*2:seg*3]
+    text4 = list1[seg*3:seg*4]
+    text5 = list1[seg*4:seg*5]
+    text6 = list1[seg*5:seg*6]
+    text7 = list1[seg*6:]
+    return text1,text2,text3,text4,text5,text6,text7,length
 
 def split_text_by_days(list1):
     time = []
@@ -199,3 +215,5 @@ def split_text_by_days(list1):
     days1_text = list(filter(lambda x:x['date'] in days1, list1))
     days1_text = list(map(lambda x:x['text'], days1_text))   
     return days7_text,days6_text,days5_text,days4_text,days3_text,days2_text,days1_text
+
+

@@ -4,10 +4,10 @@ import json
 import time
 import random
 import numpy as np
+import new_define as d
 from wordcloud import WordCloud
 from datetime import datetime, timedelta
 import main
-import popular
 import group_color
 
 # sample_word_frequencies = {'beautiful': 10, 'explicit':8, 'simple':30, 'sparse':9,
@@ -23,8 +23,8 @@ MAX_WORD = 100
 
 app = Flask(__name__)
 
-#if __name__ == "__main__":
-#    app.run(debug=True)
+if __name__ == "__main__":
+    app.run(debug=True)
 
 @app.route('/')
 def index_page():
@@ -32,7 +32,7 @@ def index_page():
 
 @app.route('/get_board', methods=['POST', 'GET'])
 def get_board():
-	board = popular.get_popular_board()
+	board = d.get_popular_board()
 	return json.dumps(board)
 
 @app.route('/get_images/', methods=['POST'])
@@ -58,44 +58,63 @@ def get_images():
 	# 固定 7 個
 	# index 0 是時間最靠近現在的圖片
 	return_data['button_texts'] = []
-
+	sample_word_frequencies[board] = 100
 	# 熱門版只爬 490 篇
 	# 其他爬 7 天
 	if board.lower() in HOT_BOARD:
 		topic_num = 0
-		step = 70
-		for i in range(8):
+		
+		word_frequencies0, word_frequencies1, word_frequencies2, word_frequencies3, word_frequencies4, word_frequencies5, word_frequencies6 = main.popular_frequency(board)
+		for i in range(1,8):
 			return_data['button_texts'].append(str(topic_num))
-			topic_num += step
+			topic_num += length
+		word_frequencies0,word_frequencies1, word_frequencies2, word_frequencies3, word_frequencies4, word_frequencies5, word_frequencies6 = main.normal_frequency(board)
+		grouped_color_func = get_group_color_func(word_frequencies0)
+		wc = WordCloud(background_color="white", repeat=False, color_func=grouped_color_func, width=image_width, height=image_height, font_path="font/SourceHanSansTW-Regular.otf", max_words=MAX_WORD)
+		return_data['image_names'].append(filename+str(0)+".png")
+		generate_wordcloud(wc, return_data['image_names'][0], word_frequencies0)
+		return_data['image_names'].append(filename+str(1)+".png")
+		generate_wordcloud(wc, return_data['image_names'][1], word_frequencies1)
+		return_data['image_names'].append(filename+str(2)+".png")
+		generate_wordcloud(wc, return_data['image_names'][2], word_frequencies2)
+		return_data['image_names'].append(filename+str(3)+".png")
+		generate_wordcloud(wc, return_data['image_names'][3], word_frequencies3)
+		return_data['image_names'].append(filename+str(4)+".png")
+		generate_wordcloud(wc, return_data['image_names'][4], word_frequencies4)
+		return_data['image_names'].append(filename+str(5)+".png")
+		generate_wordcloud(wc, return_data['image_names'][5], word_frequencies5)
+		return_data['image_names'].append(filename+str(6)+".png")
+		generate_wordcloud(wc, return_data['image_names'][6], word_frequencies6)
+		
 	else:
 		today = datetime.now()
-		for i in range(8):
+		for i in range(1,8):
 			return_data['button_texts'].append(today.strftime("%m")+"/"+today.strftime("%d"))
 			today = today - timedelta(days=1)
-
+		word_frequencies0,word_frequencies1, word_frequencies2, word_frequencies3, word_frequencies4, word_frequencies5, word_frequencies6 = main.normal_frequency(board)
+		grouped_color_func = get_group_color_func(word_frequencies0)
+		wc = WordCloud(background_color="white", repeat=False, color_func=grouped_color_func, width=image_width, height=image_height, font_path="font/SourceHanSansTW-Regular.otf", max_words=MAX_WORD)
+		return_data['image_names'].append(filename+str(0)+".png")
+		generate_wordcloud(wc, return_data['image_names'][0], word_frequencies0)
+		return_data['image_names'].append(filename+str(1)+".png")
+		generate_wordcloud(wc, return_data['image_names'][1], word_frequencies1)
+		return_data['image_names'].append(filename+str(2)+".png")
+		generate_wordcloud(wc, return_data['image_names'][2], word_frequencies2)
+		return_data['image_names'].append(filename+str(3)+".png")
+		generate_wordcloud(wc, return_data['image_names'][3], word_frequencies3)
+		return_data['image_names'].append(filename+str(4)+".png")
+		generate_wordcloud(wc, return_data['image_names'][4], word_frequencies4)
+		return_data['image_names'].append(filename+str(5)+".png")
+		generate_wordcloud(wc, return_data['image_names'][5], word_frequencies5)
+		return_data['image_names'].append(filename+str(6)+".png")
+		generate_wordcloud(wc, return_data['image_names'][6], word_frequencies6)
 	# 在 sample_text_frequencies 中加入看板的文字
-	sample_word_frequencies[board] = 100
+	
 
 	'''
 		!!!!!!! 統計好的 word frequency !!!!!!! 
 	'''
-	word_frequencies0,word_frequencies1, word_frequencies2, word_frequencies3, word_frequencies4, word_frequencies5, word_frequencies6 = main.normal_frequency(board)
-	grouped_color_func = get_group_color_func(word_frequencies0)
-	wc = WordCloud(background_color="white", repeat=False, color_func=grouped_color_func, width=image_width, height=image_height, font_path="font/SourceHanSansTW-Regular.otf", max_words=MAX_WORD)
-	return_data['image_names'].append(filename+str(0)+".png")
-	generate_wordcloud(wc, return_data['image_names'][0], word_frequencies0)
-	return_data['image_names'].append(filename+str(1)+".png")
-	generate_wordcloud(wc, return_data['image_names'][1], word_frequencies1)
-	return_data['image_names'].append(filename+str(2)+".png")
-	generate_wordcloud(wc, return_data['image_names'][2], word_frequencies2)
-	return_data['image_names'].append(filename+str(3)+".png")
-	generate_wordcloud(wc, return_data['image_names'][3], word_frequencies3)
-	return_data['image_names'].append(filename+str(4)+".png")
-	generate_wordcloud(wc, return_data['image_names'][4], word_frequencies4)
-	return_data['image_names'].append(filename+str(5)+".png")
-	generate_wordcloud(wc, return_data['image_names'][5], word_frequencies5)
-	return_data['image_names'].append(filename+str(6)+".png")
-	generate_wordcloud(wc, return_data['image_names'][6], word_frequencies6)
+	
 	# 產生 word cloud 的 image
 #	for i in range(return_data['image_num']):
 #		return_data['image_names'].append(filename+str(i)+".png")
