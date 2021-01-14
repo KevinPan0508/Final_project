@@ -1,6 +1,7 @@
 import new_define as d
 import cloud as wordc
 import ckip as ck
+import multi
  
 def normal_frequency(board):
     text_list = d.get_text_7days(board,type='text+date')
@@ -37,6 +38,17 @@ def popular_frequency(board):
     text6_cut = ck.ckip_cut(text6)
     text6_frequency = wordc.getFrequencyDictForText(text1_cut+text2_cut+text3_cut+text4_cut+text5_cut+text6_cut)
     text7_cut = ck.ckip_cut(text7)
+    text7_frequency = wordc.getFrequencyDictForText(text1_cut+text2_cut+text3_cut+text4_cut+text5_cut+text6_cut+text7_cut)
+    return text1_frequency,text2_frequency,text3_frequency,text4_frequency,text5_frequency,text6_frequency,text7_frequency,length
+
+def multi_popular_frequency(board):
+    text1_cut,text2_cut,text3_cut,text4_cut,text5_cut,text6_cut,text7_cut,length = multi.multi_start(board)
+    text1_frequency = wordc.getFrequencyDictForText(text1_cut)
+    text2_frequency = wordc.getFrequencyDictForText(text1_cut+text2_cut)
+    text3_frequency = wordc.getFrequencyDictForText(text1_cut+text2_cut+text3_cut)
+    text4_frequency = wordc.getFrequencyDictForText(text1_cut+text2_cut+text3_cut+text4_cut)
+    text5_frequency = wordc.getFrequencyDictForText(text1_cut+text2_cut+text3_cut+text4_cut+text5_cut)
+    text6_frequency = wordc.getFrequencyDictForText(text1_cut+text2_cut+text3_cut+text4_cut+text5_cut+text6_cut)
     text7_frequency = wordc.getFrequencyDictForText(text1_cut+text2_cut+text3_cut+text4_cut+text5_cut+text6_cut+text7_cut)
     return text1_frequency,text2_frequency,text3_frequency,text4_frequency,text5_frequency,text6_frequency,text7_frequency,length
 
