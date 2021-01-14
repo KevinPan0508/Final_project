@@ -14,7 +14,7 @@ import queue
 
 
 COLORS = ["#EB8384", "#F7AA4C", "#F8A57C", "#EDC360", "#96BB79", "#43aa8b", "#577590"]
-MAX_WORD = 50
+MAX_WORD = 70
 
 app = Flask(__name__)
 
@@ -50,7 +50,6 @@ def get_images():
 	# 固定 7 個
 	# index 0 是時間最靠近現在的圖片
 	return_data['button_texts'] = []
-	sample_word_frequencies[board] = 100
 	# 熱門版只爬 490 篇
 	# 其他爬 7 天
 	topic_num = 0
