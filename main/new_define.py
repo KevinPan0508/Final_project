@@ -39,10 +39,7 @@ def get_popular_board():
         except TypeError:
             continue 
         board = raw_board.text
-        if(len(result)<=20):
-            result.append(board)
-        else:
-            break
+        result.append(board)
     #result 為 dictionary array, eg. result[0]['board'] or result[5]['link']
     return result
 
