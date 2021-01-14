@@ -4,9 +4,10 @@ import ckip
 import queue
 from bs4 import BeautifulSoup
 import re   
+import cloud as wordc
 
 def multi_get_first_page_url(board):
-    current_page_url = "http://www.ptt.cc/bbs/" + board + "/index.html"
+    current_page_url = "http://ptt.cc/bbs/" + board + "/index.html"
     request = nd.modified_requests(current_page_url)
     html = request.text
     bs_class = BeautifulSoup(html,'html.parser')
@@ -18,13 +19,13 @@ def multi_get_seg(board):
     pattern = re.compile(r'\d+')
     url_digit = pattern.findall(first_page_url)
     worker1_start_url = first_page_url.lower()
-    worker2_start_url = 'http://www.ptt.cc/bbs/' + board +'/index' + str(int(url_digit[0])-1) + '.html'
-    worker3_start_url = 'http://www.ptt.cc/bbs/' + board +'/index' + str(int(url_digit[0])-2) + '.html'
-    worker4_start_url = 'http://www.ptt.cc/bbs/' + board +'/index' + str(int(url_digit[0])-3) + '.html'
-    worker5_start_url = 'http://www.ptt.cc/bbs/' + board +'/index' + str(int(url_digit[0])-4) + '.html'
-    worker6_start_url = 'http://www.ptt.cc/bbs/' + board +'/index' + str(int(url_digit[0])-5) + '.html'
-    worker7_start_url = 'http://www.ptt.cc/bbs/' + board +'/index' + str(int(url_digit[0])-6) + '.html'
-    end =  'http://www.ptt.cc/bbs/' + board +'/index' + str(int(url_digit[0])-7) + '.html'
+    worker2_start_url = 'http://ptt.cc/bbs/' + board +'/index' + str(int(url_digit[0])-1) + '.html'
+    worker3_start_url = 'http://ptt.cc/bbs/' + board +'/index' + str(int(url_digit[0])-2) + '.html'
+    worker4_start_url = 'http://ptt.cc/bbs/' + board +'/index' + str(int(url_digit[0])-3) + '.html'
+    worker5_start_url = 'http://ptt.cc/bbs/' + board +'/index' + str(int(url_digit[0])-4) + '.html'
+    worker6_start_url = 'http://ptt.cc/bbs/' + board +'/index' + str(int(url_digit[0])-5) + '.html'
+    worker7_start_url = 'http://ptt.cc/bbs/' + board +'/index' + str(int(url_digit[0])-6) + '.html'
+    end =  'http://ptt.cc/bbs/' + board +'/index' + str(int(url_digit[0])-7) + '.html'
     return worker1_start_url, worker2_start_url, worker3_start_url, worker4_start_url, worker5_start_url, worker6_start_url, worker7_start_url, end
 
 def multi_get_text(start_url,stop_url):
@@ -39,10 +40,13 @@ def multi_get_text(start_url,stop_url):
         url_digit = pattern.findall(start_url)
         start_url = start_url.replace(url_digit[0],str(int(url_digit[0])-1))
     text_list = ckip.ckip_cut(text_list)
-    return text_list
+    text_frequency = wordc.getFrequencyDictForText(text_list)
+    return text_frequency
 
 def multi_start(board):
     ret = []
+    #分割長度
+    length = 10
     my_queue = queue.Queue()
     threads = []
     start,first,second,third,fourth,fifth,sixth,seventh = multi_get_seg('board')
@@ -59,7 +63,7 @@ def multi_start(board):
         threads[i].join()
     while not my_queue.empty():
         ret.append(my_queue.get())
-    return ret[0],ret[1],ret[2],ret[3],ret[4],ret[5],ret[6]
+    return ret[0],ret[1],ret[2],ret[3],ret[4],ret[5],ret[6],length
 
 def multi_ckip_cut(board):
     text1,text2,text3,text4,text5,text6,text7,length = multi_start(board)
@@ -80,3 +84,4 @@ def multi_ckip_cut(board):
     text7_cut = threads[6].start()
     return text1_cut, text2_cut, text3_cut, text4_cut, text5_cut, text6_cut, text7_cut, length
 
+multi_start('ntu')
