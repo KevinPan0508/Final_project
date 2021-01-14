@@ -40,8 +40,7 @@ def multi_get_text(start_url,stop_url):
         url_digit = pattern.findall(start_url)
         start_url = start_url.replace(url_digit[0],str(int(url_digit[0])-1))
     text_list = ckip.ckip_cut(text_list)
-    text_frequency = wordc.getFrequencyDictForText(text_list)
-    return text_frequency
+    return text_list
 
 def multi_start(board):
     ret = []
@@ -59,29 +58,10 @@ def multi_start(board):
     threads.append(threading.Thread(target=lambda q, arg1, arg2: q.put(multi_get_text(arg1,arg2)), args=(my_queue,sixth,seventh)))
     for i in range(7):
         threads[i].start()
+#    for i in range(7):
+#        threads[i].join()
     for i in range(7):
         threads[i].join()
-    while not my_queue.empty():
-        ret.append(my_queue.get())
+        while not my_queue.empty():
+            ret.append(my_queue.get())
     return ret[0],ret[1],ret[2],ret[3],ret[4],ret[5],ret[6],length
-
-def multi_ckip_cut(board):
-    text1,text2,text3,text4,text5,text6,text7,length = multi_start(board)
-    threads = []
-    threads.append(threading.Thread(target = ckip.ckip_cut, args = (text1)))
-    threads.append(threading.Thread(target = ckip.ckip_cut, args = (text2)))
-    threads.append(threading.Thread(target = ckip.ckip_cut, args = (text3)))
-    threads.append(threading.Thread(target = ckip.ckip_cut, args = (text4)))
-    threads.append(threading.Thread(target = ckip.ckip_cut, args = (text5)))
-    threads.append(threading.Thread(target = ckip.ckip_cut, args = (text6)))
-    threads.append(threading.Thread(target = ckip.ckip_cut, args = (text7)))
-    text1_cut = threads[0].start()
-    text2_cut = threads[1].start()
-    text3_cut = threads[2].start()
-    text4_cut = threads[3].start()
-    text5_cut = threads[4].start()
-    text6_cut = threads[5].start()
-    text7_cut = threads[6].start()
-    return text1_cut, text2_cut, text3_cut, text4_cut, text5_cut, text6_cut, text7_cut, length
-
-multi_start('ntu')
