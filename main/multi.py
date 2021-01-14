@@ -48,7 +48,7 @@ def multi_start(board):
     length = 40
     my_queue = queue.Queue()
     threads = []
-    start,first,second,third,fourth,fifth,sixth,seventh = multi_get_seg('board')
+    start,first,second,third,fourth,fifth,sixth,seventh = multi_get_seg(board)
     threads.append(threading.Thread(target=lambda q, arg1, arg2: q.put(multi_get_text(arg1,arg2)), args=(my_queue,start,first)))
     threads.append(threading.Thread(target=lambda q, arg1, arg2: q.put(multi_get_text(arg1,arg2)), args=(my_queue,start,first)))
     threads.append(threading.Thread(target=lambda q, arg1, arg2: q.put(multi_get_text(arg1,arg2)), args=(my_queue,first,second)))
