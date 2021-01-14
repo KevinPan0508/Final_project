@@ -15,6 +15,7 @@ def multi_get_first_page_url(board):
     return previous_page_link
 
 def multi_get_seg(board):
+    board = board.lower()
     first_page_url = multi_get_first_page_url(board)
     pattern = re.compile(r'\d+')
     url_digit = pattern.findall(first_page_url)
