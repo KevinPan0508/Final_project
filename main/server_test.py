@@ -9,6 +9,8 @@ from wordcloud import WordCloud
 from datetime import datetime, timedelta
 import main
 import group_color
+import threading
+import queue
 
 # sample_word_frequencies = {'beautiful': 10, 'explicit':8, 'simple':30, 'sparse':9,
 #                 'readability':2, 'rules':17, 'practicality':20,
@@ -19,12 +21,9 @@ sample_word_frequencies = {'ntu': 1, '返回': 15, 'oooeee77': 2, 'tue': 1, 'jan
 COLORS = ["#EB8384", "#F7AA4C", "#F8A57C", "#EDC360", "#96BB79", "#43aa8b", "#577590"]
 # COLORS = ["#faae7b", "#cc8b79", "#9f6976", "#714674", "#432371"]
 HOT_BOARD = ['gossiping','stock','c_chat','nba','baseball','lifeismoney', 'car','hatepolitics','koreastar','sex','mobilecomm','boy-girl','lol','e-shopping','marriage','beauty','tech_job','babymother','womentalk','pc_shopping']
-MAX_WORD = 100
+MAX_WORD = 50
 
 app = Flask(__name__)
-
-if __name__ == "__main__":
-    app.run(debug=True)
 
 @app.route('/')
 def index_page():
@@ -63,28 +62,32 @@ def get_images():
 	# 其他爬 7 天
 	topic_num = 0
 		
-	word_frequencies0, word_frequencies1, word_frequencies2, word_frequencies3, word_frequencies4, word_frequencies5, word_frequencies6, length= main.popular_frequency(board)
+	word_frequencies0, word_frequencies1, word_frequencies2, word_frequencies3, word_frequencies4, word_frequencies5, word_frequencies6, length= main.multi_popular_frequency(board)
 	for i in range(8):
 		return_data['button_texts'].append(str(topic_num))
 		topic_num += length
 	
 	grouped_color_func = get_group_color_func(word_frequencies0)
 	wc = WordCloud(background_color="white", repeat=False, color_func=grouped_color_func, width=image_width, height=image_height, font_path="font/SourceHanSansTW-Regular.otf", max_words=MAX_WORD)
-	return_data['image_names'].append(filename+str(0)+".png")
-	generate_wordcloud(wc, return_data['image_names'][0], word_frequencies0)
-	return_data['image_names'].append(filename+str(1)+".png")
-	generate_wordcloud(wc, return_data['image_names'][1], word_frequencies1)
-	return_data['image_names'].append(filename+str(2)+".png")
-	generate_wordcloud(wc, return_data['image_names'][2], word_frequencies2)
-	return_data['image_names'].append(filename+str(3)+".png")
-	generate_wordcloud(wc, return_data['image_names'][3], word_frequencies3)
-	return_data['image_names'].append(filename+str(4)+".png")
-	generate_wordcloud(wc, return_data['image_names'][4], word_frequencies4)
-	return_data['image_names'].append(filename+str(5)+".png")
-	generate_wordcloud(wc, return_data['image_names'][5], word_frequencies5)
-	return_data['image_names'].append(filename+str(6)+".png")
-	generate_wordcloud(wc, return_data['image_names'][6], word_frequencies6)
+	threads = []
+	threads.append(threading.Thread(target=multi_generate_image, args=(word_frequencies0,wc,return_data,0)))
+	threads.append(threading.Thread(target=multi_generate_image, args=(word_frequencies1,wc,return_data,1)))
+	threads.append(threading.Thread(target=multi_generate_image, args=(word_frequencies2,wc,return_data,2)))
+	threads.append(threading.Thread(target=multi_generate_image, args=(word_frequencies3,wc,return_data,3)))
+	threads.append(threading.Thread(target=multi_generate_image, args=(word_frequencies4,wc,return_data,4)))
+	threads.append(threading.Thread(target=multi_generate_image, args=(word_frequencies5,wc,return_data,5)))
+	threads.append(threading.Thread(target=multi_generate_image, args=(word_frequencies6,wc,return_data,6)))
+	for i in range(len(threads)):
+		return_data['image_names'].append(filename+str(i)+".png")
+		threads[i].start()
+		print('generate ' + str(i+1) + 'th image')
 	return jsonify(return_data)
+
+def multi_generate_image(freq0,wc,dict,i):
+	generate_wordcloud(wc, dict['image_names'][i], freq0)
+
+
+
 
 def generate_wordcloud(wc, filename, text_frequencies):
 	# x, y = np.ogrid[:300, :300]
@@ -112,7 +115,7 @@ def get_group_color_func(text_frequencies):
 
 	return group_color.SimpleGroupedColorFunc(color_to_words, default_color)
 
-
-	
+if __name__ == "__main__":
+    app.run(debug=True,host='0.0.0.0')
 
 
