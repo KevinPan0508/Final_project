@@ -7,11 +7,11 @@ import re
 import cloud as wordc
 
 def multi_get_first_page_url(board):
-    current_page_url = "http://ptt.cc/bbs/" + board + "/index.html"
+    current_page_url = "http://www.ptt.cc/bbs/" + board + "/index.html"
     request = nd.modified_requests(current_page_url)
     html = request.text
     bs_class = BeautifulSoup(html,'html.parser')
-    previous_page_link = 'http://ptt.cc' + bs_class.find_all('a',class_='btn wide')[1]['href']
+    previous_page_link = 'http://www.ptt.cc' + bs_class.find_all('a',class_='btn wide')[1]['href']
     return previous_page_link
 
 def multi_get_seg(board):
@@ -19,12 +19,12 @@ def multi_get_seg(board):
     pattern = re.compile(r'\d+')
     url_digit = pattern.findall(first_page_url)
     worker1_start_url = first_page_url.lower()
-    worker2_start_url = 'http://www.ptt.cc/bbs/' + board +'/index' + str(int(url_digit[0])-1) + '.html'
-    worker3_start_url = 'http://www.ptt.cc/bbs/' + board +'/index' + str(int(url_digit[0])-2) + '.html'
-    worker4_start_url = 'http://www.ptt.cc/bbs/' + board +'/index' + str(int(url_digit[0])-3) + '.html'
-    worker5_start_url = 'http://www.ptt.cc/bbs/' + board +'/index' + str(int(url_digit[0])-4) + '.html'
-    worker6_start_url = 'http://www.ptt.cc/bbs/' + board +'/index' + str(int(url_digit[0])-5) + '.html'
-    worker7_start_url = 'http://www.ptt.cc/bbs/' + board +'/index' + str(int(url_digit[0])-6) + '.html'
+    worker2_start_url = 'http://www.ptt.cc/bbs/' + board +'/index' + str(int(url_digit[0])-2) + '.html'
+    worker3_start_url = 'http://www.ptt.cc/bbs/' + board +'/index' + str(int(url_digit[0])-4) + '.html'
+    worker4_start_url = 'http://www.ptt.cc/bbs/' + board +'/index' + str(int(url_digit[0])-6) + '.html'
+    worker5_start_url = 'http://www.ptt.cc/bbs/' + board +'/index' + str(int(url_digit[0])-8) + '.html'
+    worker6_start_url = 'http://www.ptt.cc/bbs/' + board +'/index' + str(int(url_digit[0])-10) + '.html'
+    worker7_start_url = 'http://www.ptt.cc/bbs/' + board +'/index' + str(int(url_digit[0])-12) + '.html'
     end =  'http://www.ptt.cc/bbs/' + board +'/index' + str(int(url_digit[0])-7) + '.html'
     return worker1_start_url, worker2_start_url, worker3_start_url, worker4_start_url, worker5_start_url, worker6_start_url, worker7_start_url, end
 
@@ -45,7 +45,7 @@ def multi_get_text(start_url,stop_url):
 def multi_start(board):
     ret = []
     #分割長度
-    length = 20
+    length = 40
     my_queue = queue.Queue()
     threads = []
     start,first,second,third,fourth,fifth,sixth,seventh = multi_get_seg('board')
